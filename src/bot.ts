@@ -53,7 +53,7 @@ export const getLatestFF = async (
  * Specifies the location of the config for this file
  * TODO: Auto scan a github user / org to find these repos
  */
-const GLUON_CONFIG_LOCATION = 'https://raw.githubusercontent.com/pulse-browser/browser/alpha/melon.json'
+const GLUON_CONFIG_LOCATION = 'https://raw.githubusercontent.com/pulse-browser/browser/alpha/gluon.json'
 const ISSUE_USER = 'pulse-browser'
 const ISSUE_REPO = 'browser'
 const BOT_USER = 'fushra-bot'
