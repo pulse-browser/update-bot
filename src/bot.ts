@@ -56,7 +56,7 @@ export const getLatestFF = async (
 const GLUON_CONFIG_LOCATION = 'https://raw.githubusercontent.com/pulse-browser/browser/alpha/gluon.json'
 const ISSUE_USER = 'pulse-browser'
 const ISSUE_REPO = 'browser'
-const BOT_USER = 'fushra-bot'
+const BOT_USER = 'fushra-robot'
 const PING_USERS = ['trickypr', 'pressjump']
 
 // Connect to github
