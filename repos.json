@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Pulse Browser",
+    "repo": "pulse-browser/browser",
+    "branch": "alpha",
+    "pingUsers": ["trickypr", "pressjump"]
+  }
+]
