@@ -10,8 +10,9 @@
   "dependencies": {
     "@types/node-fetch": "^2.6.1",
     "axios": "^0.26.1",
+    "gluon-build": "^1.0.0-a.2",
     "node-fetch": "^2.6.7",
-    "octokit": "^1.7.1",
+    "octokit": "^2.0.3",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
   },
