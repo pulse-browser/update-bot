@@ -4,5 +4,11 @@
     "repo": "pulse-browser/browser",
     "branch": "alpha",
     "pingUsers": ["trickypr", "pressjump"]
+  },
+  {
+    "name": "Quark Runtime",
+    "repo": "quark-platform/runtime",
+    "branch": "main",
+    "pingUsers": ["trickypr"]
   }
 ]
