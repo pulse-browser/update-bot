@@ -54,7 +54,7 @@ async function getOpenUpdateTrackerOrCreateOne({
     | RestEndpointMethodTypes['issues']['list']['response']['data']
 
   try {
-    const { data: returnedData } = await gh_interface.rest.issues.list({
+    const { data: returnedData } = await gh_interface.rest.issues.listForRepo({
       creator: BOT_USER,
       labels: issueLabel,
       owner: issueOwner,
