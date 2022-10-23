@@ -15,4 +15,11 @@ export const config: UpdateCheckerConfig[] = [
     name: 'Pulse Browser',
     repo: 'pulse-browser/browser',
   },
+  {
+    assignedUsers: ['splatboydev'],
+    branch: 'main',
+    issueLabel: 'update',
+    name: 'Freon Browser',
+    repo: 'splatboydev/freon',
+  },
 ]
