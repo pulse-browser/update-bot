@@ -10,6 +10,7 @@
 // TODO: Move the config constants into melon.json / gluon.json
 
 import { Octokit } from 'octokit'
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types'
 import fetch from 'node-fetch'
 
 // Note: Because of ESM quirks, we have to append .js to the end of our files
@@ -46,14 +47,26 @@ async function getOpenUpdateTrackerOrCreateOne({
   issueLabel: string
   pingUsers: string[]
 }): Promise<number> {
-  const { data } = await gh_interface.rest.issues.list({
-    creator: BOT_USER,
-    labels: issueLabel,
-    owner: issueOwner,
-    repo: issueRepo,
-  })
+  let data:
+    | undefined
+    | RestEndpointMethodTypes['issues']['list']['response']['data']
 
-  if (data.length > 0) {
+  try {
+    const { data: returnedData } = await gh_interface.rest.issues.list({
+      creator: BOT_USER,
+      labels: issueLabel,
+      owner: issueOwner,
+      repo: issueRepo,
+    })
+
+    data = returnedData
+  } catch (error) {
+    console.warn(error)
+    console.log()
+    console.log("Couldn't get open issues, creating a new one")
+  }
+
+  if (data?.length > 0) {
     return data[0].number
   }
 
