@@ -1,6 +1,7 @@
 {
   "name": "update-bot",
   "version": "1.0.0",
+  "type": "module",
   "description": "Get notified when your firefox fork (using gluon) needs to be updated",
   "main": "dist/bot.js",
   "repository": "https://github.com/pulse-browser/update-bot.git",

@@ -12,8 +12,10 @@
 import { Octokit } from 'octokit'
 import fetch from 'node-fetch'
 
-import { delay, getLatestAddonVersion, getLatestFF } from './utils'
-import { config } from '../repos'
+// Note: Because of ESM quirks, we have to append .js to the end of our files
+// even if they are ts
+import { delay, getLatestAddonVersion, getLatestFF } from './utils.js'
+import { config } from '../repos.js'
 
 const BOT_USER = 'fushra-robot'
 

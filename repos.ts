@@ -1,4 +1,4 @@
-import { UpdateCheckerConfig } from './src/bot'
+import { UpdateCheckerConfig } from './src/bot.js'
 
 export const config: UpdateCheckerConfig[] = [
   {

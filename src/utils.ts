@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { gh_interface } from './bot'
+import { gh_interface } from './bot.js'
 
 export interface GithubAddonInfo {
   platform: 'github'
