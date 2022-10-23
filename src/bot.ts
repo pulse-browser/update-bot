@@ -31,6 +31,7 @@ export interface UpdateCheckerConfig {
   pingUsers: string[]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires, unicorn/prefer-module
 const config: UpdateCheckerConfig[] = require('../repos.json')
 
 async function getOpenUpdateTrackerOrCreateOne(
@@ -43,76 +44,74 @@ async function getOpenUpdateTrackerOrCreateOne(
     creator: BOT_USER,
   })
 
-  if (data.length == 0) {
-    return (
-      await gh_interface.rest.issues.create({
-        owner: ISSUE_USER,
-        repo: ISSUE_REPO,
-        title: `❗ ${gluonConfig.name} has out of date dependencies`,
-        labels: ['upstream'],
-        assignees: [BOT_USER, ...PING_USERS],
-        body: ``,
-      })
-    ).data.number
-  } else {
+  if (data.length > 0) {
     return data[0].number
   }
+
+  const createIssueResponce = await gh_interface.rest.issues.create({
+    owner: ISSUE_USER,
+    repo: ISSUE_REPO,
+    title: `❗ ${gluonConfig.name} has out of date dependencies`,
+    labels: ['upstream'],
+    assignees: [BOT_USER, ...PING_USERS],
+    body: ``,
+  })
+
+  return createIssueResponce.data.number
 }
 
-async function main() {
-  for (const repo of config) {
-    try {
-      const gluon_config = await (
-        await fetch(
-          `https://raw.githubusercontent.com/${repo.repo}/${repo.branch}/gluon.json`
-        )
-      ).json()
+for (const repo of config) {
+  try {
+    const rawGluonConfig = await fetch(
+      `https://raw.githubusercontent.com/${repo.repo}/${repo.branch}/gluon.json`
+    )
+    const gluon_config = await rawGluonConfig.json()
 
-      const currentFirefoxVersion = await getLatestFF(
-        gluon_config.version.product
-      )
+    const currentFirefoxVersion = await getLatestFF(
+      gluon_config.version.product
+    )
 
-      const outOfDateDependencies: {
-        name: string
-        old: string
-        new: string
-      }[] = []
+    const outOfDateDependencies: {
+      name: string
+      old: string
+      new: string
+    }[] = []
 
-      if (gluon_config.version.version !== currentFirefoxVersion) {
+    if (gluon_config.version.version !== currentFirefoxVersion) {
+      outOfDateDependencies.push({
+        name: 'firefox',
+        old: gluon_config.version.version,
+        new: currentFirefoxVersion,
+      })
+    }
+
+    for (const addonName in gluon_config.addons) {
+      const addon = gluon_config.addons[addonName]
+
+      if (addon.platform == 'url') {
+        continue
+      }
+
+      if (addon.version !== (await getLatestAddonVersion(addon))) {
         outOfDateDependencies.push({
-          name: 'firefox',
-          old: gluon_config.version.version,
-          new: currentFirefoxVersion,
+          name: addonName,
+          old: addon.version,
+          new: await getLatestAddonVersion(addon),
         })
       }
+    }
 
-      for (const addonName in gluon_config.addons) {
-        const addon = gluon_config.addons[addonName]
+    if (outOfDateDependencies.length > 0) {
+      const issueId = await getOpenUpdateTrackerOrCreateOne(gluon_config)
 
-        if (addon.platform == 'url') {
-          continue
-        }
+      gh_interface.request(
+        'PATCH /repos/{owner}/{repo}/issues/{issue_number}',
+        {
+          owner: repo.repo.split('/')[0],
+          repo: repo.repo.split('/')[1],
+          issue_number: issueId,
 
-        if (addon.version !== (await getLatestAddonVersion(addon))) {
-          outOfDateDependencies.push({
-            name: addonName,
-            old: addon.version,
-            new: await getLatestAddonVersion(addon),
-          })
-        }
-      }
-
-      if (outOfDateDependencies.length > 0) {
-        const issueId = await getOpenUpdateTrackerOrCreateOne(gluon_config)
-
-        gh_interface.request(
-          'PATCH /repos/{owner}/{repo}/issues/{issue_number}',
-          {
-            owner: repo.repo.split('/')[0],
-            repo: repo.repo.split('/')[1],
-            issue_number: issueId,
-
-            body: `## Outdated Dependencies
+          body: `## Outdated Dependencies
 ${outOfDateDependencies
   .map(
     (dependency) =>
@@ -121,15 +120,12 @@ ${outOfDateDependencies
   .join('\n')}
 
 You can opt in or out of these requests by creating a pull request to the [update bot repository](https://github.com/pulse-browser/update-bot/blob/main/repos.json)`,
-          }
-        )
-      }
-
-      await delay(30)
-    } catch (e) {
-      console.error(e)
+        }
+      )
     }
+
+    await delay(30)
+  } catch (error) {
+    console.error(error)
   }
 }
-
-main()
