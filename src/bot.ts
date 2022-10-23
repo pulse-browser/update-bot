@@ -47,6 +47,8 @@ async function getOpenUpdateTrackerOrCreateOne({
   issueLabel: string
   pingUsers: string[]
 }): Promise<number> {
+  console.info(`Checking for open update tracker for ${projectName}`)
+
   let data:
     | undefined
     | RestEndpointMethodTypes['issues']['list']['response']['data']
@@ -67,8 +69,11 @@ async function getOpenUpdateTrackerOrCreateOne({
   }
 
   if (data?.length > 0) {
+    console.info(`Found ${data[0].number} on ${issueOwner}/${issueRepo}`)
     return data[0].number
   }
+
+  console.info(`No open update tracker found, creating one`)
 
   const createIssueResponce = await gh_interface.rest.issues.create({
     assignees: [BOT_USER, ...pingUsers],
@@ -79,6 +84,9 @@ async function getOpenUpdateTrackerOrCreateOne({
     title: `❗ ${projectName} has out of date dependencies`,
   })
 
+  console.info(
+    `Created issue ${createIssueResponce.data.number} on ${issueOwner}/${issueRepo}`
+  )
   return createIssueResponce.data.number
 }
 
@@ -135,6 +143,7 @@ for (const repo of config) {
         projectName: gluon_config.name,
       })
 
+      console.info(`Updating issue ${issueId} on ${issueOwner}/${issueRepo}`)
       gh_interface.request(
         'PATCH /repos/{owner}/{repo}/issues/{issue_number}',
         {
@@ -149,8 +158,8 @@ ${outOfDateDependencies
 You can opt in or out of these requests by creating a pull request to the [update bot repository](https://github.com/pulse-browser/update-bot/blob/main/repos.json)`,
 
           issue_number: issueId,
-          owner: repo.repo.split('/')[0],
-          repo: repo.repo.split('/')[1],
+          owner: issueOwner,
+          repo: issueRepo,
         }
       )
     }
