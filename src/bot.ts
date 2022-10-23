@@ -13,10 +13,7 @@ import { Octokit } from 'octokit'
 import fetch from 'node-fetch'
 import { delay, getLatestAddonVersion, getLatestFF } from './utils'
 
-const ISSUE_USER = 'pulse-browser'
-const ISSUE_REPO = 'browser'
 const BOT_USER = 'fushra-robot'
-const PING_USERS = ['trickypr', 'pressjump']
 
 // Connect to github
 export const gh_interface = new Octokit({
@@ -29,18 +26,29 @@ export interface UpdateCheckerConfig {
   repo: string
   branch: string
   pingUsers: string[]
+  issueLabel: string
 }
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires, unicorn/prefer-module
 const config: UpdateCheckerConfig[] = require('../repos.json')
 
-async function getOpenUpdateTrackerOrCreateOne(
-  gluonConfig: any
-): Promise<number> {
+async function getOpenUpdateTrackerOrCreateOne({
+  projectName,
+  issueOwner,
+  issueRepo,
+  issueLabel,
+  pingUsers,
+}: {
+  projectName: string
+  issueOwner: string
+  issueRepo: string
+  issueLabel: string
+  pingUsers: string[]
+}): Promise<number> {
   const { data } = await gh_interface.rest.issues.list({
-    owner: ISSUE_USER,
-    repo: ISSUE_REPO,
-    labels: 'upstream',
+    owner: issueOwner,
+    repo: issueRepo,
+    labels: issueLabel,
     creator: BOT_USER,
   })
 
@@ -49,11 +57,11 @@ async function getOpenUpdateTrackerOrCreateOne(
   }
 
   const createIssueResponce = await gh_interface.rest.issues.create({
-    owner: ISSUE_USER,
-    repo: ISSUE_REPO,
-    title: `❗ ${gluonConfig.name} has out of date dependencies`,
-    labels: ['upstream'],
-    assignees: [BOT_USER, ...PING_USERS],
+    owner: issueOwner,
+    repo: issueRepo,
+    title: `❗ ${projectName} has out of date dependencies`,
+    labels: [issueLabel],
+    assignees: [BOT_USER, ...pingUsers],
     body: ``,
   })
 
@@ -102,7 +110,16 @@ for (const repo of config) {
     }
 
     if (outOfDateDependencies.length > 0) {
-      const issueId = await getOpenUpdateTrackerOrCreateOne(gluon_config)
+      const issueOwner = repo.repo.split('/')[0]
+      const issueRepo = repo.repo.split('/')[1]
+
+      const issueId = await getOpenUpdateTrackerOrCreateOne({
+        projectName: gluon_config.name,
+        issueOwner,
+        issueRepo,
+        issueLabel: repo.issueLabel,
+        pingUsers: repo.pingUsers,
+      })
 
       gh_interface.request(
         'PATCH /repos/{owner}/{repo}/issues/{issue_number}',
