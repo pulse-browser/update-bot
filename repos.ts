@@ -22,4 +22,11 @@ export const config: UpdateCheckerConfig[] = [
     name: 'Freon Browser',
     repo: 'splatboydev/freon',
   },
+  {
+    assignedUsers: ['trickypr'],
+    branch: 'dev',
+    issueLabel: 'update',
+    name: 'Helix',
+    repo: 'fushra/helix'
+  }
 ]
