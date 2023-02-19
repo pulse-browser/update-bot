@@ -20,7 +20,7 @@ export const config: UpdateCheckerConfig[] = [
     branch: 'main',
     issueLabel: 'update',
     name: 'Freon Browser',
-    repo: 'splatboydev/freon',
+    repo: 'splatboydev/Freon-Browser',
   },
   {
     assignedUsers: ['trickypr'],
